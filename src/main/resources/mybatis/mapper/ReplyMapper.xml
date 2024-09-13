@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.ReplyMapper">
+    <insert id="insert" parameterType="ReplyModel" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO reply(customer_id, hotel_id, title, content, entry_date, modify_date, score)
+        VALUES (#{customerId}, #{hotelId}, #{title}, #{content}, NOW(), NOW(), #{score})
+    </insert>
+
+    <select id="getList" parameterType="map" resultType="ReplyModel">
+        SELECT reply.*, hotel.*, user.nickname, hotel.name
+        FROM reply
+        INNER JOIN user
+        ON customer_id = user.id
+        INNER JOIN hotel
+        ON hotel_id = hotel.id
+        WHERE reply.hotel_id = #{hotelId}
+        <choose>
+            <when test="sort == 'latest'">
+                ORDER BY reply.modify_date DESC
+            </when>
+            <when test="sort == 'highScore'">
+                ORDER BY reply.score DESC
+            </when>
+            <when test="sort == 'lowScore'">
+                ORDER BY reply.score ASC
+            </when>
+        </choose>
+        LIMIT #{startRow}, #{size}
+    </select>
+
+    <select id="count" parameterType="Long" resultType="Long">
+        SELECT COUNT(*) FROM reply
+        WHERE hotel_id = #{hotelId}
+    </select>
+
+    <select id="getById" resultType="ReplyModel" parameterType="Long">
+        SELECT * FROM reply
+        INNER JOIN hotel
+        ON reply.hotel_id = hotel.id
+        WHERE reply.id = #{id}
+    </select>
+
+    <select id="exists" parameterType="Long">
+        SELECT * FROM reply
+        WHERE id = #{id}
+    </select>
+
+    <update id="update" parameterType="ReplyModel">
+        UPDATE reply
+        SET score = #{score},
+        title = #{title},
+        content = #{content},
+        modify_date = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM reply
+        WHERE id = #{id}
+    </delete>
+</mapper>

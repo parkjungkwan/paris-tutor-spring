@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.UserMapper">
+    <select id="selectOne" parameterType="int" resultType="userModel">
+        SELECT * FROM user
+        where user.id = #{id}
+    </select>
+    <select id="selectAll" resultType="userModel">
+        SELECT * FROM user
+    </select>
+    <select id="selectByUserId" parameterType="int" resultType="userModel">
+        SELECT * FROM user
+        where user.id = #{userId}
+    </select>
+    <delete id="deleteByUserID" parameterType="int">
+        DELETE FROM user
+        where user.id = #{userId}
+    </delete>
+    <select id="selectByUsername" parameterType="string" resultType="UserModel">
+        SELECT * FROM user
+        WHERE user.username = #{username}
+    </select>
+    <update id="updateUserRole" parameterType="hashmap">
+        UPDATE user
+        SET user.role = #{role}
+        WHERE user.id = #{userId}
+    </update>
+    <insert id="register" parameterType="userModel">
+        INSERT INTO user(username,password,nickname,role)
+        VALUES(#{username},#{password},#{nickname},#{role})
+    </insert>
+</mapper>

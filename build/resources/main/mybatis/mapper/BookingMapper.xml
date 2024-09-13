@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.BucketMapper">
+    <select id="selectOne" parameterType="int" resultType="bookingModel">
+        SELECT * FROM booking
+        WHERE id = #{id}
+    </select>
+    <select id="selectAll" resultType="bookingModel">
+        SELECT B.id,B.customerId,H.* FROM booking as B
+        INNER JOIN hotel as H
+        ON B.hotelId = H.id
+    </select>
+    <select id="bookingByUserId" parameterType="int" resultType="bookingModel">
+        SELECT B.id,B.customerId as customerID,H.id as hotelId,H.name as hotelName,H.startEntry, H.endEntry,H.price,H.booked FROM booking as B
+        INNER JOIN hotel as H ON H.id=B.hotelId and H.booked = 0
+        where B.customerId = #{userId}
+    </select>
+    <select id="bookingCheckedByUserId" parameterType="int" resultType="bookingModel">
+        SELECT B.id,B.customerId as customerID,B.payment,H.id as hotelId,H.name as hotelName,H.startEntry, H.endEntry,H.price,H.booked FROM booking as B
+        INNER JOIN hotel as H ON H.id=B.hotelId
+        where B.customerId = #{userId} and B.payment = 1
+    </select>
+    <delete id="deleteOne" parameterType="int">
+        DELETE FROM booking
+        WHERE booking.id = #{bookingId}
+    </delete>
+
+    <insert id="insert" parameterType="bookingModel" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO booking(customerId, hotelId, hotelName, price, payment)
+        VALUES(#{customerID}, #{hotelId}, #{hotelName}, #{price}, #{payment})
+    </insert>
+
+    <update id="update" parameterType="bookingModel">
+        UPDATE booking
+        SET customerId = #{customerId},
+        hotelId = #{hotelId},
+        hotelName = #{hotelName},
+        price = #{price}
+        WHERE id = #{id}
+    </update>
+    <update id="updatePayment">
+        UPDATE booking
+        SET payment = 1
+        WHERE id = #{bookingId}
+    </update>
+    <update id="cancelPayment">
+        UPDATE booking
+        SET payment = 0
+        WHERE id = #{bookingId}
+    </update>
+    <select id="checkDuplicate" parameterType="hashMap" resultType="int" >
+        SELECT COUNT(*)
+        FROM booking
+        WHERE customerId=#{customerId} AND hotelId = #{hotelId}
+    </select>
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.HotelMapper">
+    <select id="selectOne" parameterType="int" resultType="HotelDTO">
+        SELECT * FROM hotel
+        INNER JOIN user
+        ON hotel.sellerId = user.id
+        WHERE hotel.id = #{id}
+    </select>
+    <select id="selectMaxPage" resultType="int">
+        SELECT COUNT(*) FROM hotel
+    </select>
+    <select id="selectList" parameterType="hashmap" resultType="HotelDTO">
+        SELECT * FROM hotel
+        INNER JOIN user
+        ON hotel.sellerId = user.id
+        ORDER BY hotel.id
+        DESC LIMIT #{startRow},#{size}
+    </select>
+    <select id="selectAll" resultType="hotelModel">
+        SELECT * FROM hotel
+        WHERE booked=0
+    </select>
+    <insert id="insert" parameterType="HotelDTO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO hotel(name, content,address, sellerId, startEntry,
+        endEntry,roomNumber,roomMember,roomType,price,shortContent,booked)
+        VALUES(#{name}, #{content},#{address},
+        #{sellerId},#{startEntry},#{endEntry},#{roomNumber},#{roomMember},#{roomType},#{price},#{shortContent},0)
+    </insert>
+    <select id="searchHotels" parameterType="map" resultType="HotelDTO">
+        SELECT *
+        FROM hotel
+        WHERE booked = 0
+        <if test="searchType == 'name' and keyword != null and keyword != ''">
+            AND name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="searchType == 'address' and keyword != null and keyword != ''">
+            AND address LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="minPrice != null">
+            AND price &gt;= #{minPrice}
+        </if>
+        <if test="maxPrice != null">
+            AND price &lt;= #{maxPrice}
+        </if>
+        <if test="startDate != null">
+            AND startEntry &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND endEntry &lt;= #{endDate}
+        </if>
+        ORDER BY id DESC
+        LIMIT #{startRow}, #{size}
+    </select>
+
+    <update id="update" parameterType="HotelDTO">
+        UPDATE hotel
+        SET name = #{name},
+        content = #{content},
+        address = #{address},
+        startEntry = #{startEntry},
+        endEntry = #{endEntry},
+        roomNumber = #{roomNumber},
+        roomMember = #{roomMember},
+        roomType = #{roomType},
+        price = #{price},
+        shortContent = #{shortContent}
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteOne" parameterType="int">
+        DELETE FROM hotel
+        WHERE hotel.id = #{hotelId}
+    </delete>
+    <delete id="delete" parameterType="int">
+        DELETE FROM hotel
+        WHERE hotel.id = #{hotelId}
+    </delete>
+    <select id="hotelInBucket" parameterType="int" resultType="hotelModel">
+        SELECT * FROM hotel
+        WHERE hotel.id in (SELECT hotelId FROM bucket
+        WHERE bucket.customerId = #{userId})
+    </select>
+    <select id="selectMyHotel" parameterType="int" resultType="hotelModel">
+        SELECT * FROM hotel
+        WHERE hotel.sellerId = #{sellerId}
+    </select>
+
+    <!--추가-->
+    <update id="updateBooked">
+        UPDATE hotel
+        SET booked = 1
+        WHERE id = #{hotelId}
+    </update>
+    <update id="cancelBooked">
+        UPDATE hotel
+        SET booked = 0
+        WHERE id = #{hotelId}
+    </update>
+
+</mapper>

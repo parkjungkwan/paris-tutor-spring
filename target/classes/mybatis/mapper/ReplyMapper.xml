@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.ReplyMapper">
+    <insert id="insert" parameterType="ReplyDTO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO reply(customer_id, hotel_id, title, content, entry_date, modify_date, score)
+        VALUES (#{customerId}, #{hotelId}, #{title}, #{content}, NOW(), NOW(), #{score})
+    </insert>
+
+    <select id="selectList" parameterType="map" resultType="ReplyDTO">
+        SELECT reply.*, hotel.*, user.username, hotel.name
+        FROM reply
+        INNER JOIN user
+        ON customer_id = user.id
+        INNER JOIN hotel
+        ON hotel_id = hotel.id
+        WHERE reply.hotel_id = #{hotelId}
+        <choose>
+            <when test="sort == 'latest'">
+                ORDER BY reply.modify_date DESC
+            </when>
+            <when test="sort == 'highScore'">
+                ORDER BY reply.score DESC
+            </when>
+            <when test="sort == 'lowScore'">
+                ORDER BY reply.score ASC
+            </when>
+        </choose>
+        LIMIT #{startRow}, #{size}
+    </select>
+
+    <select id="getTotalCount" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM reply
+        WHERE hotel_id = #{hotelId}
+    </select>
+
+    <select id="getTotalScore" parameterType="int" resultType="double">
+        SELECT SUM(score) FROM reply
+        WHERE hotel_id = #{hotelId}
+    </select>
+
+    <select id="selectOne" resultType="ReplyDTO" parameterType="int">
+        SELECT * FROM reply
+        INNER JOIN hotel
+        ON reply.hotel_id = hotel.id
+        WHERE reply.id = #{id}
+    </select>
+
+    <update id="update" parameterType="ReplyDTO">
+        UPDATE reply
+        SET score = #{score},
+        title = #{title},
+        content = #{content},
+        modify_date = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM reply
+        WHERE id = #{id}
+    </delete>
+</mapper>

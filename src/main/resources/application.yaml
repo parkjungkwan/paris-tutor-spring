@@ -1,0 +1,36 @@
+spring:
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/qwerdb
+    username: root
+    password: qwer!234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+  sql:
+    init:
+      mode: always
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2MB
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+server:
+  port: 8080

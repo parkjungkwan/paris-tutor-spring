@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Reply List</title>
+</head>
+<body>
+
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-5 w-75">
+  <div style="font-weight: bold">
+    [호텔명 : <span th:text="${data.replyList.size() > 0 ? data.replyList[0].name : '호텔 이름 없음'}"></span>]
+  </div>
+
+  <div style="font-weight: bold">
+    [평균 별점 :
+    <span th:each="star : ${#numbers.sequence(1, 5)}">
+                <i th:classappend="${star <= (data.totalScore / data.totalCount)} ? 'fa fa-star text-warning' : 'fa fa-star-o'"></i>
+            </span>
+    <span th:text="${#numbers.formatDecimal(data.totalScore / data.totalCount, 1, 1)}"></span>
+    ]
+  </div>
+
+  <div class="d-flex justify-content-end">
+    <!--/*@thymesVar id="sortOption" type=""*/-->
+    <select th:value="${sortOption}" th:field="*{sortOption}" class="form-select">
+      <option value="latest">최신순</option>
+      <option value="oldest">오래된순</option>
+    </select>
+  </div>
+
+  <ul style="list-style: none">
+    <li th:each="reply : ${data.replyList}">
+      <div th:replace="fragments/userList :: userItem(reply=${reply})"></div>
+    </li>
+  </ul>
+
+  <div class="d-flex justify-content-end">
+    <button type="button" class="btn btn-primary me-2"
+            th:if="${userInfo.role == 'role_customer'}"
+            th:onclick="|location.href='@{/reply/write/{hotelId}(hotelId=${hotelId})}'|">
+      리뷰작성
+    </button>
+
+    <button type="button" class="btn btn-secondary"
+            th:onclick="|location.href='@{/hotel/showOne/{hotelId}(hotelId=${hotelId})}'|">
+      뒤로가기
+    </button>
+  </div>
+
+  <nav th:replace="fragments/paginationComponent :: pagination(page=${page}, totalPages=${totalPages})"></nav>
+
+</div>
+
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
